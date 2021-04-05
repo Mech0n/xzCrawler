@@ -1,6 +1,6 @@
 # xzCrawler
 
-> Save a file for xainzhi.
+> Save a file for xainzhi. 
 
 ### How to Use?
 
@@ -14,3 +14,15 @@
     ```shell
     python main.py
     ```
+
+### Features
+
+- Incremental update
+    - Python set : `pasturl.pkl` stores the requested past-url
+
+### TODO
+
+- Incremental update
+    - Redis
+- Main site
+- Google search

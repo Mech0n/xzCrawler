@@ -3,6 +3,8 @@ from os import remove, makedirs
 from os.path import basename, dirname, exists, abspath
 from bs4 import BeautifulSoup
 from rich import print
+from threading import Lock
+import pickle
 
 
 class crawler:
@@ -18,8 +20,31 @@ class crawler:
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:81.0) Gecko/20100101 Firefox/81.0"
         }
 
+        self.lock = Lock()
+
+        if exists("pasturl.pkl"):
+            with open("pasturl.pkl", "rb") as file:
+                self.pasturl = pickle.load(file)
+        else:
+            self.pasturl = set()
+
         if not exists(self.basedir):
             makedirs(f"./{self.basedir}")
+
+    def __del__(self):
+        with open("pasturl.pkl", "wb") as file:
+            pickle.dump(self.pasturl, file)
+
+    def check_and_add(self, url):
+        self.lock.acquire()
+        if url in self.pasturl:
+            print(f"[bold yellow][INFO][/bold yellow] {url} exists")
+            self.lock.release()
+            return True
+        else :
+            self.pasturl.add(url)
+            self.lock.release()
+            return False
 
     # Download engine
     def download(self, url, sess, path):
@@ -31,7 +56,7 @@ class crawler:
         if not exists(dirname(path)):
             makedirs(dirname(path))
 
-        with open(path, "wb") as f:
+        with open(path, "wb") as file:
             res = sess.get(url)
 
             # TODO: boom
@@ -41,9 +66,13 @@ class crawler:
                 )
                 return
 
-            f.write(res.content)
+            file.write(res.content)
 
     def crawler(self, url):
+        # add url in set
+        if self.check_and_add(url):
+            return
+
         print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
         with requests.session() as sess:
             sess.headers.update(self.headers)

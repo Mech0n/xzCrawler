@@ -7,7 +7,7 @@ from crawler import crawler
 def htmls():
     c = crawler()
     pool = ThreadPoolExecutor(20)
-    for idx in range(10, 9396):
+    for idx in range(400, 401):
         pool.submit(c.crawler, f"https://xz.aliyun.com/t/{str(idx)}")
     pool.shutdown(wait=True)
 
