@@ -1,12 +1,12 @@
 # xzCrawler
 
-> Save a file for xainzhi. 
+> Save a file for xianzhi. 
 
 ### How to Use?
 
 ⚠️: Change the range in `main.py` first.
 
-- pip install thr requirments.
+- pip install the requirments.
     ```shell
     pip install -r requirements.txt
     ```
