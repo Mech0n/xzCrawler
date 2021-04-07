@@ -1,10 +1,11 @@
+import pickle
+from os import makedirs, remove
+from os.path import abspath, basename, dirname, exists
+from threading import Lock
+
 import requests
-from os import remove, makedirs
-from os.path import basename, dirname, exists, abspath
 from bs4 import BeautifulSoup
 from rich import print
-from threading import Lock
-import pickle
 
 
 class crawler:

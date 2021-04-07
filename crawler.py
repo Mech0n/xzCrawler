@@ -1,10 +1,12 @@
+import pickle
+from os import makedirs, remove
+from os.path import abspath, basename, dirname, exists
+from threading import Lock
+
 import requests
-from os import remove, makedirs
-from os.path import basename, dirname, exists, abspath
 from bs4 import BeautifulSoup
 from rich import print
-from threading import Lock
-import pickle
+
 from db import db
 
 
@@ -38,9 +40,9 @@ class crawler:
                 print(f"[bold yellow][INFO][/bold yellow] {url} exists")
                 return True
             else:
-                self.lock.acquire()
-                self.database.add((idx, url, False))
-                self.lock.release()
+                # self.lock.acquire()
+                # self.database.add((idx, url, False))
+                # self.lock.release()
                 return False
         except Exception as e:
             print(f"check_and_add : {e}")
@@ -63,6 +65,7 @@ class crawler:
                 print(
                     f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
                 )
+
                 return
 
             file.write(res.content)
@@ -101,7 +104,7 @@ class crawler:
                 return
 
             self.lock.acquire()
-            self.database.update_title((title, idx))
+            self.database.add((idx, title, False))
             self.lock.release()
 
             # Process static files

@@ -1,15 +1,14 @@
-from sqlite3 import Connection
 from os.path import exists
-
-database_path = "database.db"
+from sqlite3 import Connection
 
 
 class db:
     def __init__(self):
-        if exists(database_path):
-            self.conn = Connection(database_path, check_same_thread=False)
+        self.database_path = "database.db"
+        if exists(self.database_path):
+            self.conn = Connection(self.database_path, check_same_thread=False)
         else:
-            self.conn = Connection(database_path, check_same_thread=False)
+            self.conn = Connection(self.database_path, check_same_thread=False)
             self.__create_schema()
 
     def __del__(self):
@@ -88,6 +87,30 @@ class db:
             cur.close()
             return res
 
+    def query_all_new_content(self):
+        """
+        values : ('id',)
+        return [{'id': 1, 'title': 'www.balala.com', 'indexed': 1}]
+        """
+        try:
+            cur = self.conn.cursor()
+            query_res = cur.execute("select * from main where indexed=?", (False,))
+            self.conn.commit()
+        except Exception as e:
+            print(f"db.query : {e}")
+            res = []
+            return res
+        else:
+            res = []
+            for cow in query_res:
+                element = {}
+                element["id"] = cow[0]
+                element["title"] = cow[1]
+                element["indexed"] = cow[2]
+                res.append(element)
+            cur.close()
+            return res
+
 
 if __name__ == "__main__":
     database = db()
@@ -100,4 +123,4 @@ if __name__ == "__main__":
     # database.delete((400,))
     # database.update_title(('asdasdas', 400))
     # query
-    print(database.query((400,)))
+    print(database.query_all())

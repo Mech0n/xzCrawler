@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
+
 from crawler import crawler
 
 # url = f"https://xz.aliyun.com/t/{str(i)}"

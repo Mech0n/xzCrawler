@@ -4,6 +4,7 @@
 
 ### How to Use?
 
+#### Crawler
 ⚠️: Change the range in `main.py` first.
 
 - pip install the requirments.
@@ -15,6 +16,15 @@
     python main.py
     ```
 
+#### Index
+
+- Run Crawler
+
+- Index all html, result will be stored in `SearchIndex` or the path you chose.
+    ```shell
+    python indexDoc.py
+    ```
+
 ### Features
 
 - Incremental update
@@ -24,6 +34,7 @@
 
 - Main site
     - search
-- index
-    - Whoosh
-    - Jieba
+- Index
+    > A simple index script, Implemented by adding content sequentially, a strong script will coming soon😝.
+    - `Whoosh`
+    - `Jieba`
