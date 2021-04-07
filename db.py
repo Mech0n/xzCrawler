@@ -11,7 +11,6 @@ class db:
         else:
             self.conn = Connection(database_path, check_same_thread=False)
             self.__create_schema()
-    
 
     def __del__(self):
         self.conn.commit()
@@ -30,7 +29,7 @@ class db:
             cur.close()
 
     def add(self, values: tuple):
-        '''values : ('id', 'title', 'indexed')'''
+        """values : ('id', 'title', 'indexed')"""
         try:
             cur = self.conn.cursor()
             cur.execute("insert into main values (?, ?, ?)", values)
@@ -39,7 +38,7 @@ class db:
             cur.close()
 
     def delete(self, values: tuple):
-        '''values : ('id',)'''
+        """values : ('id',)"""
         try:
             cur = self.conn.cursor()
             cur.execute("delete from main where id=?", values)
@@ -48,7 +47,7 @@ class db:
             cur.close()
 
     def indexed(self, values: tuple):
-        '''values : ('indexed', 'id')'''
+        """values : ('indexed', 'id')"""
         try:
             cur = self.conn.cursor()
             cur.execute("update main set indexed=? where id=?", values)
@@ -57,7 +56,7 @@ class db:
             cur.close()
 
     def update_title(self, values: tuple):
-        '''values : ('title', 'id')'''
+        """values : ('title', 'id')"""
         try:
             cur = self.conn.cursor()
             cur.execute("update main set title=? where id=?", values)
@@ -66,16 +65,16 @@ class db:
             cur.close()
 
     def query(self, values):
-        '''
+        """
         values : ('id',)
         return [{'id': 1, 'title': 'www.balala.com', 'indexed': 1}]
-        '''
+        """
         try:
             cur = self.conn.cursor()
             query_res = cur.execute("select * from main where id=?", values)
             self.conn.commit()
         except Exception as e:
-            print(f'db.query : {e}')
+            print(f"db.query : {e}")
             res = []
             return res
         else:
@@ -101,4 +100,4 @@ if __name__ == "__main__":
     # database.delete((400,))
     # database.update_title(('asdasdas', 400))
     # query
-    print (database.query((400,)))
+    print(database.query((400,)))

@@ -43,7 +43,7 @@ class crawler:
                 self.lock.release()
                 return False
         except Exception as e:
-            print(f'check_and_add : {e}')
+            print(f"check_and_add : {e}")
 
     # Download engine
     def download(self, url, sess, path):
@@ -99,7 +99,7 @@ class crawler:
 
             if exists(f"./{self.basedir}/{title}.htm"):
                 return
-            
+
             self.lock.acquire()
             self.database.update_title((title, idx))
             self.lock.release()
