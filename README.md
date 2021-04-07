@@ -18,11 +18,12 @@
 ### Features
 
 - Incremental update
-    - Python set : `pasturl.pkl` stores the requested past-url
+    - Python sqlite : `database.db` stores the requested past-url
 
 ### TODO
 
-- Incremental update
-    - Redis
 - Main site
-- Google search
+    - search
+- index
+    - Whoosh
+    - Jieba

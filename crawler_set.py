@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from rich import print
 from threading import Lock
 import pickle
-from db import db
 
 
 class crawler:
@@ -22,28 +21,30 @@ class crawler:
         }
 
         self.lock = Lock()
-        self.database = db()
+
+        if exists("pasturl.pkl"):
+            with open("pasturl.pkl", "rb") as file:
+                self.pasturl = pickle.load(file)
+        else:
+            self.pasturl = set()
 
         if not exists(self.basedir):
             makedirs(f"./{self.basedir}")
 
-    def check_and_add(self, idx):
-        try:
-            self.lock.acquire()
-            url = f"https://xz.aliyun.com/t/{str(idx)}"
-            query_res = self.database.query((idx,))
-            self.lock.release()
+    def __del__(self):
+        with open("pasturl.pkl", "wb") as file:
+            pickle.dump(self.pasturl, file)
 
-            if len(query_res) != 0 and query_res[0]["id"] == idx:
-                print(f"[bold yellow][INFO][/bold yellow] {url} exists")
-                return True
-            else:
-                self.lock.acquire()
-                self.database.add((idx, url, False))
-                self.lock.release()
-                return False
-        except Exception as e:
-            print(f'check_and_add : {e}')
+    def check_and_add(self, url):
+        self.lock.acquire()
+        if url in self.pasturl:
+            print(f"[bold yellow][INFO][/bold yellow] {url} exists")
+            self.lock.release()
+            return True
+        else:
+            self.pasturl.add(url)
+            self.lock.release()
+            return False
 
     # Download engine
     def download(self, url, sess, path):
@@ -67,10 +68,9 @@ class crawler:
 
             file.write(res.content)
 
-    def crawler(self, idx):
-        url = f"https://xz.aliyun.com/t/{str(idx)}"
+    def crawler(self, url):
         # add url in set
-        if self.check_and_add(idx):
+        if self.check_and_add(url):
             return
 
         print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
@@ -99,10 +99,6 @@ class crawler:
 
             if exists(f"./{self.basedir}/{title}.htm"):
                 return
-            
-            self.lock.acquire()
-            self.database.update_title((title, idx))
-            self.lock.release()
 
             # Process static files
             for link in soup.find_all("link"):
@@ -147,4 +143,4 @@ class crawler:
 
 if __name__ == "__main__":
     c = crawler()
-    c.crawler(400)
+    c.crawler("https://xz.aliyun.com/t/400")
