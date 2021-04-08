@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>先知社区-全局搜索</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <style>
+        /*web background*/
+        .container {
+            display: table;
+            height: 100%;
+        }
+
+        .row {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .row-centered {
+            text-align: center;
+        }
+
+        .col-centered {
+            display: inline-block;
+            float: none;
+            text-align: left;
+            margin-right: -4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-3">
+        <div class="row row-centered mt-3">
+            <div class="col-centered mb-3">
+                <form action="{{ url_for('search_result') }}" class="form-inline input-group input-group-lg"
+                    method="post" role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="key" id="key">
+                    </div>
+                    <button type="submit" class="btn btn-default">搜索</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container fluid">
+        <div class="row-centered">
+            <h4>Result</h>
+        </div>
+        <div class="row-centered">
+            {% if search_len <= 0 %} <h1> Nothing ! </h1>
+                {% else %}
+                {% for i in results %}
+                <div class="col-*-*">
+                    <a href={{ url_for("doc", path=i["path"]) }}> {{ i["title"] }} </a>
+                    <!-- {{ i["highlight"] }} -->
+                </div>
+                {% endfor %}
+                {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

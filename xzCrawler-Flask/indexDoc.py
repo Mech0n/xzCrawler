@@ -8,7 +8,7 @@ from index import Index
 
 class IndexDoc:
     def __init__(self):
-        self.basedir = "doc"
+        self.basedir = "templates/doc"
         self.database = db()
         self.index = Index()
 
@@ -30,7 +30,8 @@ class IndexDoc:
                     0
                 ].get_text()
                 content = content
-                self.index.write(element["title"], path, content)
+                # self.index.write(element["title"], path, content)
+                self.index.write(element["title"], f"{element['title']}.htm", content)
                 self.database.indexed((True, element["id"]))
         except Exception as e:
             print(f"[ERROR] IndexDoc.index_all : {e}")

@@ -65,6 +65,7 @@ class Index:
                     hit_element = dict(hit)
                     hit_element["highlight"] = hit.highlights("content")
                     res.append(hit_element)
+                    # print(f"[INFO] Index.search : {hit_element}")
             return res
         except Exception as e:
             print(f"[ERROR] Index.search : {e}")
