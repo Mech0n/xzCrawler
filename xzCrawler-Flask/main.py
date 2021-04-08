@@ -30,5 +30,5 @@ class ThreadPool:
 if __name__ == "__main__":
     t = ThreadPool(20)
 
-    for i in range(9370, 9395):
+    for i in range(10, 9396):
         t.submit(i)

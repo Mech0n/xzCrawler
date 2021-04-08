@@ -1,7 +1,6 @@
 import pickle
 from os import makedirs, remove
 from os.path import abspath, basename, dirname, exists
-from threading import Lock
 
 import requests
 from bs4 import BeautifulSoup
@@ -24,7 +23,6 @@ class crawler:
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:81.0) Gecko/20100101 Firefox/81.0"
         }
 
-        self.lock = Lock()
         self.database = db()
 
         if not exists(self.basedir):
@@ -32,18 +30,14 @@ class crawler:
 
     def check_and_add(self, idx):
         try:
-            self.lock.acquire()
             url = f"https://xz.aliyun.com/t/{str(idx)}"
             query_res = self.database.query((idx,))
-            self.lock.release()
 
             if len(query_res) != 0 and query_res[0]["id"] == idx:
                 print(f"[bold yellow][INFO][/bold yellow] {url} exists")
                 return True
             else:
-                # self.lock.acquire()
                 # self.database.add((idx, url, False))
-                # self.lock.release()
                 return False
         except Exception as e:
             print(f"check_and_add : {e}")
@@ -59,17 +53,24 @@ class crawler:
             makedirs(dirname(path))
 
         with open(path, "wb") as file:
-            res = sess.get(url)
+            try:
+                res = sess.get(url, timeout=5)
 
-            # TODO: boom
-            if res.status_code != 200:
+                # TODO: boom
+                if res.status_code != 200:
+                    print(
+                        f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
+                    )
+
+                    return
+                
+                file.write(res.content)
+
+            except:
                 print(
-                    f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
+                    f"[bold red][Failed][/bold red] cannot establish connection while downloading {url} to {path}"
                 )
 
-                return
-
-            file.write(res.content)
 
     def crawler(self, idx):
         url = f"https://xz.aliyun.com/t/{str(idx)}"
@@ -104,9 +105,7 @@ class crawler:
             if exists(f"./{self.basedir}/{title}.htm"):
                 return
 
-            self.lock.acquire()
-            self.database.add((idx, title, False))
-            self.lock.release()
+            # self.database.add((idx, title, False))
 
             # Process static files
             for link in soup.find_all("link"):
@@ -169,6 +168,9 @@ class crawler:
 
             with open(path, "w") as file:
                 file.write(soup.prettify())
+
+            self.database.add((idx, title, False))
+
 
 
 if __name__ == "__main__":

@@ -2,4 +2,3 @@ rich
 requests
 bs4
 flask
-

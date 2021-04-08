@@ -58,16 +58,22 @@ class crawler:
             makedirs(dirname(path))
 
         with open(path, "wb") as file:
-            res = sess.get(url)
+            try :
+                res = sess.get(url, timeout=5)
 
-            # TODO: boom
-            if res.status_code != 200:
-                print(
-                    f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
-                )
-                return
+                # TODO: boom
+                if res.status_code != 200:
+                    print(
+                        f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
+                    )
+                    return
 
-            file.write(res.content)
+                file.write(res.content)
+            except Exception as e:
+                if e == requests.exceptions.Timeout:
+                    print(f"[bold red][Failed][/bold red] {url} was gone!")
+                else:
+                    print(f"[bold red][Failed][/bold red] crawler.download : {e}")
 
     def crawler(self, url):
         # add url in set
