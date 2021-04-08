@@ -11,12 +11,15 @@ def form():
 
 @app.route("/search_result", methods=["GET", "POST"])
 def search_result():
-    if request.method == 'POST':
-        search_key = request.form['key']
+    if request.method == "POST":
+        search_key = request.form["key"]
         idx = Index()
         # TODO : split search_list
         search_list = idx.search(search_key)
-        return render_template("search_result.html", results=search_list, search_len= len(search_list))
+        return render_template(
+            "search_result.html", results=search_list, search_len=len(search_list)
+        )
+
 
 @app.route("/doc/<path>")
 def doc(path):
@@ -24,6 +27,7 @@ def doc(path):
         return render_template(f"/doc/{path}")
     except Exception as e:
         return str(e)
+
 
 if __name__ == "__main__":
     app.run()

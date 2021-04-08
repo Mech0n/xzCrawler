@@ -4,6 +4,27 @@
 
 ### How to Use?
 
+```
+.
+├── LICENSE
+├── README.md
+├── crawler.py          # use sqlite to incremental update
+├── crawler_set.py      # use python set to incremental update
+├── db.py               # sqlite module
+├── main.py             # Main script to download all the post
+├── requirements.txt
+└── xzCrawler-Flask         # Flask Server (Independent part)
+    ├── app.py
+    ├── crawler_flask.py    # the magically modified crawler to match flask server
+    ├── db.py
+    ├── index.py            # index module
+    ├── indexDoc.py         # index all the post use index module
+    ├── main.py
+    └── templates
+        ├── form.html
+        └── search_result.html
+```
+
 #### Just Use Crawler
 ⚠️: Change the range in `main.py` first.
 

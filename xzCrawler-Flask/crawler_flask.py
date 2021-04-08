@@ -117,7 +117,7 @@ class crawler:
                 self.download(url, sess, path)
 
                 # TODO
-                if 'static/' in ln:
+                if "static/" in ln:
                     local_ln = "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
                 else:
                     local_ln = "{{ url_for('static', " + f"filename='{ln}" + "') }}"
@@ -144,17 +144,20 @@ class crawler:
                 if ln.startswith("https://"):
                     path = f"./{self.basedir}/{self.imgdir}/{ln[8:]}"
                     local_ln = f"{self.imgdir}/{ln[8:]}"
-                    local_ln = "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                    local_ln = (
+                        "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                    )
 
                 if ln.startswith("http://"):
                     path = f"./{self.basedir}/{self.imgdir}/{ln[7:]}"
                     local_ln = f"{self.imgdir}/{ln[7:]}"
-                    local_ln = "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                    local_ln = (
+                        "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                    )
 
                 if path is not None and local_ln is not None:
                     self.download(ln, sess, path)
                     image["src"] = local_ln
-
 
             path = f"./{self.htmldir}/{title}.htm"
 
