@@ -51,8 +51,8 @@ class crawler:
 
             if not exists(dirname(path)):
                 makedirs(dirname(path))
-            
-            print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")    
+
+            print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")
             with open(path, "wb") as file:
                 try:
                     res = sess.get(url, timeout=5)
@@ -64,7 +64,7 @@ class crawler:
                         )
 
                         return
-                    
+
                     file.write(res.content)
 
                 except:
@@ -75,121 +75,131 @@ class crawler:
             print(f"[bold red][Failed][/bold red] {url} : Cant write in file!")
 
     def crawler(self, idx):
-            url = f"https://xz.aliyun.com/t/{str(idx)}"
-            # add url in set
-            if self.check_and_add(idx):
+        url = f"https://xz.aliyun.com/t/{str(idx)}"
+        # add url in set
+        if self.check_and_add(idx):
+            return
+
+        print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
+        with requests.session() as sess:
+            sess.headers.update(self.headers)
+
+            res = sess.get(url, timeout=5)
+
+            # TODO: boom
+            if res.status_code != 200:
+                print(
+                    f"[bold red][Failed][/bold red] status_code : {res.status_code} while downloading {url}"
+                )
                 return
 
-            print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
-            with requests.session() as sess:
-                sess.headers.update(self.headers)
+            soup = BeautifulSoup(res.content.decode("utf-8"), features="html.parser")
 
-                res = sess.get(url, timeout=5)
+            # get title
+            title = None
+            title = soup.find_all("title")[0].get_text()
 
-                # TODO: boom
-                if res.status_code != 200:
-                    print(
-                        f"[bold red][Failed][/bold red] status_code : {res.status_code} while downloading {url}"
-                    )
-                    return
+            # TODO: boom
+            if title is None:
+                print(f"[bold red][Failed][/bold red]No title while downloading {url}")
+                return False
 
-                soup = BeautifulSoup(res.content.decode("utf-8"), features="html.parser")
+            if exists(f"./{self.basedir}/{title}.htm"):
+                return
 
-                # get title
-                title = None
-                title = soup.find_all("title")[0].get_text()
+            try:
+                # Process static files
+                ln = None
+                for link in soup.find_all("link"):
+                    ln = link.get("href")
+                    if ln is None:
+                        print(
+                            f"[bold red][Failed][/bold red] crawler : link.get('href')"
+                        )
+                        continue
+                    ln = ln.lstrip("/")
+                    url = self.baseurl + ln
+                    # path = f"./{self.basedir}/{ln}"
+                    path = f"./{ln}"
+                    self.download(url, sess, path)
 
-                # TODO: boom
-                if title is None:
-                    print(f"[bold red][Failed][/bold red]No title while downloading {url}")
-                    return False
+                    # TODO
+                    if "static/" in ln:
+                        local_ln = (
+                            "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
+                        )
+                    else:
+                        local_ln = "{{ url_for('static', " + f"filename='{ln}" + "') }}"
+                    # {{url_for('static', filename='ayrton_senna_movie_wallpaper_by_bashgfx-d4cm6x6.jpg')}}
+                    link["href"] = local_ln
 
-                if exists(f"./{self.basedir}/{title}.htm"):
-                    return
-                
-                try:
-                    # Process static files
-                    ln = None
-                    for link in soup.find_all("link"):
-                        ln = link.get("href")
-                        if ln is None:
-                            print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
-                            continue
-                        ln = ln.lstrip("/")
+                # Process images
+                ln = None
+                for image in soup.find_all("img"):
+                    ln = image.get("src")
+                    if ln is None:
+                        print(
+                            f"[bold red][Failed][/bold red] crawler : image.get('src')"
+                        )
+                        continue
+                    if ln.startswith("/static"):
+                        # n = link["href"].lstrip("/")
                         url = self.baseurl + ln
-                        # path = f"./{self.basedir}/{ln}"
-                        path = f"./{ln}"
+                        path = f"./{self.basedir}/{ln}"
                         self.download(url, sess, path)
 
+                        # local_ln = f"./{ln}"
                         # TODO
-                        if "static/" in ln:
-                            local_ln = "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
-                        else:
-                            local_ln = "{{ url_for('static', " + f"filename='{ln}" + "') }}"
-                        # {{url_for('static', filename='ayrton_senna_movie_wallpaper_by_bashgfx-d4cm6x6.jpg')}}
-                        link["href"] = local_ln
+                        local_ln = (
+                            "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
+                        )
+                        image["src"] = local_ln
 
-                    # Process images
-                    ln = None
-                    for image in soup.find_all("img"):
-                        ln = image.get("src")
-                        if ln is None:
-                            print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
-                            continue
-                        if ln.startswith("/static"):
-                            # n = link["href"].lstrip("/")
-                            url = self.baseurl + ln
-                            path = f"./{self.basedir}/{ln}"
-                            self.download(url, sess, path)
+                    path = None
+                    local_ln = None
 
-                            # local_ln = f"./{ln}"
-                            # TODO
-                            local_ln = "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
-                            image["src"] = local_ln
+                    if ln.startswith("https://"):
+                        path = f"./{self.basedir}/{self.imgdir}/{ln[8:]}"
+                        local_ln = f"{self.imgdir}/{ln[8:]}"
+                        local_ln = (
+                            "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                        )
 
-                        path = None
-                        local_ln = None
+                    if ln.startswith("http://"):
+                        path = f"./{self.basedir}/{self.imgdir}/{ln[7:]}"
+                        local_ln = f"{self.imgdir}/{ln[7:]}"
+                        local_ln = (
+                            "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                        )
 
-                        if ln.startswith("https://"):
-                            path = f"./{self.basedir}/{self.imgdir}/{ln[8:]}"
-                            local_ln = f"{self.imgdir}/{ln[8:]}"
-                            local_ln = (
-                                "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
-                            )
+                    if path is not None and local_ln is not None:
+                        self.download(ln, sess, path)
+                        image["src"] = local_ln
 
-                        if ln.startswith("http://"):
-                            path = f"./{self.basedir}/{self.imgdir}/{ln[7:]}"
-                            local_ln = f"{self.imgdir}/{ln[7:]}"
-                            local_ln = (
-                                "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
-                            )
+                # write the html
+                path = f"./{self.htmldir}/{title}.htm"
 
-                        if path is not None and local_ln is not None:
-                            self.download(ln, sess, path)
-                            image["src"] = local_ln
+                if exists(path):
+                    return
 
-                    # write the html
-                    path = f"./{self.htmldir}/{title}.htm"
+                if not exists(dirname(path)):
+                    makedirs(dirname(path))
 
-                    if exists(path):
-                        return
+                with open(path, "w") as file:
+                    file.write(soup.prettify())
 
-                    if not exists(dirname(path)):
-                        makedirs(dirname(path))
+                self.database.add((idx, title, False))
 
-                    with open(path, "w") as file:
-                        file.write(soup.prettify())
-
-                    self.database.add((idx, title, False))
-                    
-                except Exception as e:
-                    print(f"[bold red][Failed][/bold red] crawler : {e}", f"while crawler {url} ", f"and html is {f'https://xz.aliyun.com/t/{str(idx)}'}", f"{local_ln}")
-                    print(format_exc())
-                
-
+            except Exception as e:
+                print(
+                    f"[bold red][Failed][/bold red] crawler : {e}",
+                    f"while crawler {url} ",
+                    f"and html is {f'https://xz.aliyun.com/t/{str(idx)}'}",
+                    f"{local_ln}",
+                )
+                print(format_exc())
 
 
 if __name__ == "__main__":
     c = crawler()
     c.crawler(145)
-

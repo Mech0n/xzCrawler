@@ -58,7 +58,7 @@ class crawler:
             makedirs(dirname(path))
 
         with open(path, "wb") as file:
-            try :
+            try:
                 res = sess.get(url, timeout=5)
 
                 # TODO: boom

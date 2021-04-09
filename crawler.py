@@ -49,8 +49,8 @@ class crawler:
 
             if not exists(dirname(path)):
                 makedirs(dirname(path))
-            
-            print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")    
+
+            print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")
             with open(path, "wb") as file:
                 try:
                     res = sess.get(url, timeout=5)
@@ -62,7 +62,7 @@ class crawler:
                         )
 
                         return
-                    
+
                     file.write(res.content)
 
                 except:
@@ -71,7 +71,6 @@ class crawler:
                     )
         except:
             print(f"[bold red][Failed][/bold red] {url} : Cant write in file!")
-
 
     def crawler(self, idx):
         url = f"https://xz.aliyun.com/t/{str(idx)}"
@@ -122,7 +121,6 @@ class crawler:
 
                 local_ln = f"./{ln}"
                 link["href"] = local_ln
-
 
             # Process images
             ln = None
