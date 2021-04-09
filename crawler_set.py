@@ -50,7 +50,9 @@ class crawler:
 
     # Download engine
     def download(self, url, sess, path):
-        self.console.print(f"[bold yellow][INFO][/bold yellow]Downloading {url} to {path}")
+        self.console.print(
+            f"[bold yellow][INFO][/bold yellow]Downloading {url} to {path}"
+        )
 
         if exists(path):
             return
@@ -74,7 +76,9 @@ class crawler:
                 if e == requests.exceptions.Timeout:
                     self.console.print(f"[bold red][Failed][/bold red] {url} was gone!")
                 else:
-                    self.console.print(f"[bold red][Failed][/bold red] crawler.download : {e}")
+                    self.console.print(
+                        f"[bold red][Failed][/bold red] crawler.download : {e}"
+                    )
 
     def crawler(self, url):
         # add url in set
@@ -102,7 +106,9 @@ class crawler:
 
             # TODO: boom
             if title is None:
-                self.console.print(f"[bold red][Failed][/bold red]No title while downloading {url}")
+                self.console.print(
+                    f"[bold red][Failed][/bold red]No title while downloading {url}"
+                )
                 return False
 
             if exists(f"./{self.basedir}/{title}.htm"):
@@ -113,7 +119,9 @@ class crawler:
             for link in soup.find_all("link"):
                 ln = link.get("href")
                 if ln is None:
-                    self.console.print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
+                    self.console.print(
+                        f"[bold red][Failed][/bold red] crawler : link.get('href')"
+                    )
                     continue
                 ln = ln.lstrip("/")
                 url = self.baseurl + ln
@@ -128,7 +136,9 @@ class crawler:
             for image in soup.find_all("img"):
                 ln = image.get("src")
                 if ln is None:
-                    self.console.print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
+                    self.console.print(
+                        f"[bold red][Failed][/bold red] crawler : image.get('src')"
+                    )
                     continue
                 if ln.startswith("/static"):
                     # n = link["href"].lstrip("/")

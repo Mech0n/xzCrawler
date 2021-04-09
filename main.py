@@ -24,14 +24,16 @@ class ThreadPool:
 
     def run(self, idx) -> None:
         try:
-            worker = self.worker_queue.get(block=True)  # wait until a worker is available
+            worker = self.worker_queue.get(
+                block=True
+            )  # wait until a worker is available
             worker.crawler(idx)
             self.worker_queue.put(worker)
         except Exception as e:
             print(
                 f"[Failed] crawler thread: {e}",
             )
-            print(format_exc())
+            # print(format_exc())
 
 
 if __name__ == "__main__":

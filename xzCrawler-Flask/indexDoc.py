@@ -11,6 +11,10 @@ class IndexDoc:
         self.basedir = "templates/doc"
         self.database = db()
         self.index = Index()
+        self.errorset = set()
+
+    def __del__(self):
+        print(self.errorset)
 
     def index_all(self):
         try:
@@ -26,10 +30,13 @@ class IndexDoc:
                 tags = soup.find_all("pre")
                 for tag in tags:
                     tag.decompose()
-                content = soup.find_all(class_="topic-content markdown-body")[
-                    0
-                ].get_text()
-                content = content
+                body = soup.find_all(class_="topic-content markdown-body")
+                if len(body) > 0:
+                    content = body[0].get_text()
+                else:
+                    self.errorset.add(path)
+                    print(f"[ERROR] IndexDoc.index_all : {path} have no content")
+                    continue
                 # self.index.write(element["title"], path, content)
                 self.index.write(element["title"], f"{element['title']}.htm", content)
                 self.database.indexed((True, element["id"]))

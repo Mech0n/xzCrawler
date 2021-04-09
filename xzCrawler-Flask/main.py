@@ -18,22 +18,23 @@ class ThreadPool:
 
     def __del__(self):
         self.thread_pool_executor.shutdown(wait=True)
-        print(f"queue nums : {self.worker_queue.qsize()}")
+        # print(f"queue nums : {self.worker_queue.qsize()}")
 
     def submit(self, idx):
         self.thread_pool_executor.submit(self.run, idx)
 
     def run(self, idx) -> None:
         try:
-            worker = self.worker_queue.get(block=True)  # wait until a worker is available
+            worker = self.worker_queue.get(
+                block=True
+            )  # wait until a worker is available
             worker.crawler(idx)
             self.worker_queue.put(worker)
         except Exception as e:
             print(
                 f"[Failed] crawler thread: {e}",
             )
-            print(f"queue nums : {self.worker_queue.qsize()}")
-            print(format_exc())
+            # print(format_exc())
 
 
 if __name__ == "__main__":

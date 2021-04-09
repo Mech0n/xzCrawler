@@ -42,7 +42,9 @@ class crawler:
                 # self.database.add((idx, url, False))
                 return False
         except Exception as e:
-            self.console.print(f"check_and_add : {e}")
+            self.console.print(
+                f"[bold red][Failed][/bold red] crawler.check_and_add() : {e}"
+            )
 
     # Download engine
     def download(self, url, sess, path):
@@ -53,7 +55,9 @@ class crawler:
             if not exists(dirname(path)):
                 makedirs(dirname(path))
 
-            self.console.print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")
+            self.console.print(
+                f"[bold yellow][INFO][/bold yellow]Start downloading {url}"
+            )
             with open(path, "wb") as file:
                 try:
                     res = sess.get(url, timeout=5)
@@ -70,17 +74,19 @@ class crawler:
 
                 except:
                     self.console.print(
-                        f"[bold red][Failed][/bold red] cannot establish connection while downloading {url}"
+                        f"[bold red][Failed][/bold red] craeler.download() : cannot establish connection while downloading {url}"
                     )
         except:
-            self.console.print(f"[bold red][Failed][/bold red] {url} : Cant write in file!")
+            self.console.print(
+                f"[bold red][Failed][/bold red] craeler.download() : {url} : Cant write in file!"
+            )
 
     def crawler(self, idx):
         url = f"https://xz.aliyun.com/t/{str(idx)}"
         # add url in set
         if self.check_and_add(idx):
             return
-        try :
+        try:
             self.console.print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
             with requests.session() as sess:
                 sess.headers.update(self.headers)
@@ -94,7 +100,9 @@ class crawler:
                     )
                     return
 
-                soup = BeautifulSoup(res.content.decode("utf-8"), features="html.parser")
+                soup = BeautifulSoup(
+                    res.content.decode("utf-8"), features="html.parser"
+                )
 
                 # get title
                 title = None
@@ -102,7 +110,9 @@ class crawler:
 
                 # TODO: boom
                 if title is None:
-                    self.console.print(f"[bold red][Failed][/bold red]No title while downloading {url}")
+                    self.console.print(
+                        f"[bold red][Failed][/bold red]No title while downloading {url}"
+                    )
                     return False
 
                 if exists(f"./{self.basedir}/{title}.htm"):
@@ -195,7 +205,7 @@ class crawler:
                 f"[bold red][Failed][/bold red] crawler : {e}",
                 f"while crawler {url} ",
             )
-            self.console.print(format_exc())
+            # self.console.print(format_exc())
 
 
 if __name__ == "__main__":
