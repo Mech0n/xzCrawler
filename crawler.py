@@ -109,8 +109,13 @@ class crawler:
             self.database.add((idx, title, False))
 
             # Process static files
+            ln = None
             for link in soup.find_all("link"):
-                ln = link["href"].lstrip("/")
+                ln = link.get("href")
+                if ln is None:
+                    print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
+                    continue
+                ln = ln.lstrip("/")
                 url = self.baseurl + ln
                 path = f"./{self.basedir}/{ln}"
                 self.download(url, sess, path)
@@ -118,11 +123,16 @@ class crawler:
                 local_ln = f"./{ln}"
                 link["href"] = local_ln
 
+
             # Process images
+            ln = None
             for image in soup.find_all("img"):
-                ln = image["src"]
+                ln = image.get("src")
+                if ln is None:
+                    print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
+                    continue
                 if ln.startswith("/static"):
-                    n = link["href"].lstrip("/")
+                    # n = link["href"].lstrip("/")
                     url = self.baseurl + ln
                     path = f"./{self.basedir}/{ln}"
                     self.download(url, sess, path)

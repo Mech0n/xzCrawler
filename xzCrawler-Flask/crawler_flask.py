@@ -1,6 +1,7 @@
 import pickle
 from os import makedirs, remove
 from os.path import abspath, basename, dirname, exists
+from traceback import format_exc
 
 import requests
 from bs4 import BeautifulSoup
@@ -108,8 +109,13 @@ class crawler:
                 
                 try:
                     # Process static files
+                    ln = None
                     for link in soup.find_all("link"):
-                        ln = link["href"].lstrip("/")
+                        ln = link.get("href")
+                        if ln is None:
+                            print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
+                            continue
+                        ln = ln.lstrip("/")
                         url = self.baseurl + ln
                         # path = f"./{self.basedir}/{ln}"
                         path = f"./{ln}"
@@ -124,10 +130,14 @@ class crawler:
                         link["href"] = local_ln
 
                     # Process images
+                    ln = None
                     for image in soup.find_all("img"):
-                        ln = image["src"]
+                        ln = image.get("src")
+                        if ln is None:
+                            print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
+                            continue
                         if ln.startswith("/static"):
-                            n = link["href"].lstrip("/")
+                            # n = link["href"].lstrip("/")
                             url = self.baseurl + ln
                             path = f"./{self.basedir}/{ln}"
                             self.download(url, sess, path)
@@ -174,10 +184,12 @@ class crawler:
                     
                 except Exception as e:
                     print(f"[bold red][Failed][/bold red] crawler : {e}", f"while crawler {url} ", f"and html is {f'https://xz.aliyun.com/t/{str(idx)}'}", f"{local_ln}")
+                    print(format_exc())
                 
 
 
 
 if __name__ == "__main__":
     c = crawler()
-    c.crawler(153)
+    c.crawler(145)
+
