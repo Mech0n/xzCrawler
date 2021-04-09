@@ -33,11 +33,12 @@ class ThreadPool:
             print(
                 f"[Failed] crawler thread: {e}",
             )
-            # print(format_exc())
+            worker = crawler()
+            self.worker_queue.put(worker)
 
 
 if __name__ == "__main__":
     t = ThreadPool(20)
 
-    for i in range(9350, 9395):
+    for i in range(10, 9395):
         t.submit(i)

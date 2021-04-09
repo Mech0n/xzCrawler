@@ -113,8 +113,6 @@ class crawler:
             if exists(f"./{self.basedir}/{title}.htm"):
                 return
 
-            self.database.add((idx, title, False))
-
             # Process static files
             ln = None
             for link in soup.find_all("link"):
@@ -165,8 +163,19 @@ class crawler:
                     self.download(ln, sess, path)
                     image["src"] = local_ln
 
-            with open(f"./{self.basedir}/{title}.htm", "w") as file:
+            # write the html
+            path = f"./{self.basedir}/{title}.htm"
+
+            if exists(path):
+                return
+
+            if not exists(dirname(path)):
+                makedirs(dirname(path))
+
+            with open(path, "w") as file:
                 file.write(soup.prettify())
+            
+            self.database.add((idx, title, False))
 
 
 if __name__ == "__main__":
