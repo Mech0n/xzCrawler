@@ -43,31 +43,34 @@ class crawler:
 
     # Download engine
     def download(self, url, sess, path):
-        print(f"[bold yellow][INFO][/bold yellow]Downloading {url} to {path}")
+        try:
+            if exists(path):
+                return
 
-        if exists(path):
-            return
+            if not exists(dirname(path)):
+                makedirs(dirname(path))
+            
+            print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")    
+            with open(path, "wb") as file:
+                try:
+                    res = sess.get(url, timeout=5)
 
-        if not exists(dirname(path)):
-            makedirs(dirname(path))
+                    # TODO: boom
+                    if res.status_code != 200:
+                        print(
+                            f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url}"
+                        )
 
-        with open(path, "wb") as file:
-            try :
-                res = sess.get(url)
+                        return
+                    
+                    file.write(res.content)
 
-                # TODO: boom
-                if res.status_code != 200:
+                except:
                     print(
-                        f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
+                        f"[bold red][Failed][/bold red] cannot establish connection while downloading {url}"
                     )
-
-                    return
-
-                file.write(res.content)
-            except :
-                print(
-                    f"[bold red][Failed][/bold red] cannot establish connection while downloading {url} to {path}"
-                )
+        except:
+            print(f"[bold red][Failed][/bold red] {url} : Cant write in file!")
 
 
     def crawler(self, idx):
