@@ -5,7 +5,7 @@ from threading import Lock
 
 import requests
 from bs4 import BeautifulSoup
-from rich import print
+from rich.console import Console
 
 
 class crawler:
@@ -21,6 +21,7 @@ class crawler:
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:81.0) Gecko/20100101 Firefox/81.0"
         }
 
+        self.console = Console()
         self.lock = Lock()
 
         if exists("pasturl.pkl"):
@@ -39,7 +40,7 @@ class crawler:
     def check_and_add(self, url):
         self.lock.acquire()
         if url in self.pasturl:
-            print(f"[bold yellow][INFO][/bold yellow] {url} exists")
+            self.console.print(f"[bold yellow][INFO][/bold yellow] {url} exists")
             self.lock.release()
             return True
         else:
@@ -49,7 +50,7 @@ class crawler:
 
     # Download engine
     def download(self, url, sess, path):
-        print(f"[bold yellow][INFO][/bold yellow]Downloading {url} to {path}")
+        self.console.print(f"[bold yellow][INFO][/bold yellow]Downloading {url} to {path}")
 
         if exists(path):
             return
@@ -63,7 +64,7 @@ class crawler:
 
                 # TODO: boom
                 if res.status_code != 200:
-                    print(
+                    self.console.print(
                         f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url} to {path}"
                     )
                     return
@@ -71,16 +72,16 @@ class crawler:
                 file.write(res.content)
             except Exception as e:
                 if e == requests.exceptions.Timeout:
-                    print(f"[bold red][Failed][/bold red] {url} was gone!")
+                    self.console.print(f"[bold red][Failed][/bold red] {url} was gone!")
                 else:
-                    print(f"[bold red][Failed][/bold red] crawler.download : {e}")
+                    self.console.print(f"[bold red][Failed][/bold red] crawler.download : {e}")
 
     def crawler(self, url):
         # add url in set
         if self.check_and_add(url):
             return
 
-        print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
+        self.console.print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
         with requests.session() as sess:
             sess.headers.update(self.headers)
 
@@ -88,7 +89,7 @@ class crawler:
 
             # TODO: boom
             if res.status_code != 200:
-                print(
+                self.console.print(
                     f"[bold red][Failed][/bold red] status_code : {res.status_code} while downloading {url}"
                 )
                 return
@@ -101,7 +102,7 @@ class crawler:
 
             # TODO: boom
             if title is None:
-                print(f"[bold red][Failed][/bold red]No title while downloading {url}")
+                self.console.print(f"[bold red][Failed][/bold red]No title while downloading {url}")
                 return False
 
             if exists(f"./{self.basedir}/{title}.htm"):
@@ -112,7 +113,7 @@ class crawler:
             for link in soup.find_all("link"):
                 ln = link.get("href")
                 if ln is None:
-                    print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
+                    self.console.print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
                     continue
                 ln = ln.lstrip("/")
                 url = self.baseurl + ln
@@ -127,7 +128,7 @@ class crawler:
             for image in soup.find_all("img"):
                 ln = image.get("src")
                 if ln is None:
-                    print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
+                    self.console.print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
                     continue
                 if ln.startswith("/static"):
                     # n = link["href"].lstrip("/")

@@ -4,7 +4,7 @@ from os.path import abspath, basename, dirname, exists
 
 import requests
 from bs4 import BeautifulSoup
-from rich import print
+from rich.console import Console
 
 from db import db
 
@@ -24,6 +24,8 @@ class crawler:
 
         self.database = db()
 
+        self.console = Console()
+
         if not exists(self.basedir):
             makedirs(f"./{self.basedir}")
 
@@ -33,13 +35,13 @@ class crawler:
             query_res = self.database.query((idx,))
 
             if len(query_res) != 0 and query_res[0]["id"] == idx:
-                print(f"[bold yellow][INFO][/bold yellow] {url} exists")
+                self.console.print(f"[bold yellow][INFO][/bold yellow] {url} exists")
                 return True
             else:
                 # self.database.add((idx, url, False))
                 return False
         except Exception as e:
-            print(f"check_and_add : {e}")
+            self.console.print(f"check_and_add : {e}")
 
     # Download engine
     def download(self, url, sess, path):
@@ -50,14 +52,14 @@ class crawler:
             if not exists(dirname(path)):
                 makedirs(dirname(path))
 
-            print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")
+            self.console.print(f"[bold yellow][INFO][/bold yellow]Start downloading {url}")
             with open(path, "wb") as file:
                 try:
                     res = sess.get(url, timeout=5)
 
                     # TODO: boom
                     if res.status_code != 200:
-                        print(
+                        self.console.print(
                             f"[bold red][Failed][/bold red]status_code : {res.status_code} while downloading {url}"
                         )
 
@@ -66,11 +68,11 @@ class crawler:
                     file.write(res.content)
 
                 except:
-                    print(
+                    self.console.print(
                         f"[bold red][Failed][/bold red] cannot establish connection while downloading {url}"
                     )
         except:
-            print(f"[bold red][Failed][/bold red] {url} : Cant write in file!")
+            self.console.print(f"[bold red][Failed][/bold red] {url} : Cant write in file!")
 
     def crawler(self, idx):
         url = f"https://xz.aliyun.com/t/{str(idx)}"
@@ -78,7 +80,7 @@ class crawler:
         if self.check_and_add(idx):
             return
 
-        print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
+        self.console.print(f"[bold yellow][INFO][/bold yellow]Downloading {url}")
         with requests.session() as sess:
             sess.headers.update(self.headers)
 
@@ -86,7 +88,7 @@ class crawler:
 
             # TODO: boom
             if res.status_code != 200:
-                print(
+                self.console.print(
                     f"[bold red][Failed][/bold red] status_code : {res.status_code} while downloading {url}"
                 )
                 return
@@ -99,7 +101,7 @@ class crawler:
 
             # TODO: boom
             if title is None:
-                print(f"[bold red][Failed][/bold red]No title while downloading {url}")
+                self.console.print(f"[bold red][Failed][/bold red]No title while downloading {url}")
                 return False
 
             if exists(f"./{self.basedir}/{title}.htm"):
@@ -112,7 +114,7 @@ class crawler:
             for link in soup.find_all("link"):
                 ln = link.get("href")
                 if ln is None:
-                    print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
+                    self.console.print(f"[bold red][Failed][/bold red] crawler : link.get('href')")
                     continue
                 ln = ln.lstrip("/")
                 url = self.baseurl + ln
@@ -127,7 +129,7 @@ class crawler:
             for image in soup.find_all("img"):
                 ln = image.get("src")
                 if ln is None:
-                    print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
+                    self.console.print(f"[bold red][Failed][/bold red] crawler : image.get('src')")
                     continue
                 if ln.startswith("/static"):
                     # n = link["href"].lstrip("/")
