@@ -174,7 +174,7 @@ class crawler:
 
             with open(path, "w") as file:
                 file.write(soup.prettify())
-            
+
             self.database.add((idx, title, False))
 
 
