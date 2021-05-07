@@ -127,21 +127,38 @@ class crawler:
                             f"[bold red][Failed][/bold red] crawler : link.get('href') at {f'https://xz.aliyun.com/t/{str(idx)}'}"
                         )
                         continue
-                    ln = ln.lstrip("/")
-                    url = self.baseurl + ln
-                    # path = f"./{self.basedir}/{ln}"
-                    path = f"./{ln}"
-                    self.download(url, sess, path)
 
-                    # TODO
-                    if "static/" in ln:
+                    if ln.startswith("/static"):
+                        ln = ln.lstrip("/")
+                        url = self.baseurl + ln
+                        path = f"./{ln}"
+                        local_ln = f"/{ln}"
                         local_ln = (
-                            "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
+                            "{{ url_for('static', " + f"filename='{local_ln[8:]}" + "') }}"
                         )
-                    else:
-                        local_ln = "{{ url_for('static', " + f"filename='{ln}" + "') }}"
-                    # {{url_for('static', filename='ayrton_senna_movie_wallpaper_by_bashgfx-d4cm6x6.jpg')}}
-                    link["href"] = local_ln
+                        self.download(url, sess, path)
+                        link["href"] = local_ln
+
+                    path = None
+                    local_ln = None
+
+                    if ln.startswith("https://"):
+                        path = f"./{self.basedir}/{ln[8:]}"
+                        local_ln = f"/{ln[8:]}"
+                        local_ln = (
+                            "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                        )
+
+                    if ln.startswith("http://"):
+                        path = f"./{self.basedir}/{ln[7:]}"
+                        local_ln = f"/{ln[7:]}"
+                        local_ln = (
+                            "{{ url_for('static', " + f"filename='{local_ln}" + "') }}"
+                        )
+
+                    if path is not None and local_ln is not None:
+                        self.download(ln, sess, path)
+                        link["href"] = local_ln
 
                 # Process images
                 ln = None
@@ -152,13 +169,13 @@ class crawler:
                             f"[bold red][Failed][/bold red] crawler : image.get('src') at {f'https://xz.aliyun.com/t/{str(idx)}'}"
                         )
                         continue
+
                     if ln.startswith("/static"):
                         # n = link["href"].lstrip("/")
                         url = self.baseurl + ln
                         path = f"./{self.basedir}/{ln}"
                         self.download(url, sess, path)
 
-                        # local_ln = f"./{ln}"
                         # TODO
                         local_ln = (
                             "{{ url_for('static', " + f"filename='{ln[7:]}" + "') }}"
@@ -210,4 +227,4 @@ class crawler:
 
 if __name__ == "__main__":
     c = crawler()
-    c.crawler(145)
+    c.crawler(9511)
