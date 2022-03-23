@@ -2,3 +2,6 @@ rich
 requests
 bs4
 flask
+selenium
+jieba
+whoosh

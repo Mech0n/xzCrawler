@@ -7,3 +7,5 @@ test
 .vscode
 SearchIndex
 static
+Pipfile
+Pipfile.lock

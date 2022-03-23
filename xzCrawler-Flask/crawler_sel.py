@@ -6,6 +6,9 @@ from traceback import format_exc
 import requests
 from bs4 import BeautifulSoup
 from rich.console import Console
+from selenium import webdriver
+import time
+
 
 from db import db
 
@@ -26,6 +29,8 @@ class crawler:
 
         self.database = db()
         self.console = Console()
+        self.option = webdriver.ChromeOptions()
+        self.option.add_argument('headless')
 
         if not exists(self.basedir):
             makedirs(f"./{self.basedir}")
@@ -60,7 +65,7 @@ class crawler:
             )
             with open(path, "wb") as file:
                 try:
-                    res = sess.get(url, timeout=5)
+                    res = sess.get(url)
 
                     # TODO: boom
                     if res.status_code != 200:
@@ -70,12 +75,17 @@ class crawler:
 
                         return
 
+                    # print(res.content)
                     file.write(res.content)
 
-                except:
+                except Exception as e:
                     self.console.print(
                         f"[bold red][Failed][/bold red] craeler.download() : cannot establish connection while downloading {url}"
                     )
+                    self.console.print(
+                        f"[bold red][Failed][/bold red] craeler.download() : {e}"
+                    )
+
         except:
             self.console.print(
                 f"[bold red][Failed][/bold red] craeler.download() : {url} : Cant write in file!"
@@ -91,22 +101,24 @@ class crawler:
             with requests.session() as sess:
                 sess.headers.update(self.headers)
 
-                res = sess.get(url, timeout=5)
+                driver = webdriver.Chrome(chrome_options=self.option)
+                driver.get(url)
+                time.sleep(10)
 
                 # TODO: boom
-                if res.status_code != 200:
+                if driver.title == '400 - 先知社区':  # type: ignore
                     self.console.print(
-                        f"[bold red][Failed][/bold red] status_code : {res.status_code} while downloading {url}"
+                        f"[bold red][Failed][/bold red] 400-404 : {driver.title} while downloading {url}"
                     )
                     return
 
                 soup = BeautifulSoup(
-                    res.content.decode("utf-8"), features="html.parser"
+                    driver.page_source, features="html.parser"
                 )
 
                 # get title
                 title = None
-                title = soup.find_all("title")[0].get_text()
+                title = driver.title
 
                 # TODO: boom
                 if title is None:

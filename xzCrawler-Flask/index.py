@@ -89,6 +89,6 @@ if __name__ == "__main__":
     # for i in range(100):
     # idx.write(title, f"/{i}", content)
 
-    for i in idx.search("shellcode"):
+    for i in idx.search("weblogic"):
         print(i["path"])
         print(i["highlight"])

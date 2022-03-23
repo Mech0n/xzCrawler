@@ -41,7 +41,7 @@
 
 - `cd xzCrawler-Flask`
 
-- Run `main.py` use the another crawler(`crawler_flask.py`)
+- Run `main.py` use the another crawler(`crawler_sel.py`)
 
 - Index all html, result will be stored in `SearchIndex` or the path you chose.
     ```shell

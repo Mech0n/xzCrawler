@@ -2,7 +2,8 @@ from concurrent.futures import ThreadPoolExecutor
 from queue import Queue
 from traceback import format_exc
 
-from crawler_flask import crawler
+# from crawler_flask import crawler
+from crawler_sel import crawler
 
 # url = f"https://xz.aliyun.com/t/{str(i)}"
 
@@ -40,5 +41,5 @@ class ThreadPool:
 if __name__ == "__main__":
     t = ThreadPool(20)
 
-    for i in range(10, 9396):
+    for i in range(10000, 10278):
         t.submit(i)
